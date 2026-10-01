@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>THARROXX</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;font-family:Arial;overflow:hidden}
+#top{height:50px;background:#111;display:flex;justify-content:space-between;align-items:center;padding:0 10px;border-bottom:2px solid #ffcc00}
+#gameCanvas{background:#1a2e1a;width:100%;height:calc(100vh - 110px - 60px);display:block}
+#controls{height:60px;background:#111;display:flex;justify-content:space-around;align-items:center;position:fixed;bottom:50px;width:100%}
+.btn{background:#ffcc00;color:#000;padding:8px 12px;border:0;border-radius:8px;font-weight:bold}
+#adBanner{position:fixed;bottom:0;left:0;width:100%;height:50px;background:#000;border-top:2px solid #ffcc00;display:flex;align-items:center;justify-content:center;z-index:999}
+.store{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:1000;display:none;padding:20px;text-align:center;overflow-y:auto}
+.store.active{display:block}
+.card{background:#1e1e1e;border:1px solid #333;border-radius:10px;padding:12px;margin:8px}
+</style>
+<!-- FB Audience Network - TERI ID -->
+<script async src="https://connect.facebook.net/en_US/fbevents.js"></script>
+</head>
+<body>
+
+<div id="top">
+<div><b style="color:#ffcc00">THARROXX</b></div>
+<div id="pName">Player</div>
+<div>💎<span id="dCount">0</span> | ❤️<span id="hp">100</span></div>
+<div><button class="btn" onclick="openStore()">STORE</button></div>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<div id="controls">
+<button class="btn" onclick="moveL()">◀️</button>
+<button class="btn" onclick="fire()">FIRE 🔥</button>
+<button class="btn" onclick="moveR()">▶️</button>
+<button class="btn" onclick="startGame()">START</button>
+<button class="btn" onclick="useMedkit()">MEDKIT</button>
+</div>
+
+<!-- TERI BANNER AD - ID: 3134628758258139/5589109229 -->
+<div id="adBanner">
+<div style="text-align:center">
+<p style="font-size:10px;color:#888">AD • Tharroxx Earnings</p>
+<div id="fbAd">
+<!-- FB Banner Ad -->
+<fb:ad placementid="3134628758258139/5589109229" format="320x50" testmode="false"></fb:ad>
+<p style="color:#ffcc00;font-size:11px;margin-top:2px">🎮 THARROXX - Ad se earning ho rahi hai 🎮</p>
+</div>
+</div>
+</div>
+
+<div id="storeDiv" class="store">
+<h2 style="color:#ffcc00">THARROXX STORE</h2>
+<p style="font-size:11px">UPI: yaspalsinghrawat15@okhdfcbank</p>
+<div class="card"><b>100 💎 - ₹80</b><br><button class="btn" onclick="buy(100,80)">BUY NOW</button></div>
+<div class="card" style="border-color:#ffcc00"><b>1200 💎 - ₹800 BEST</b><br><button class="btn" onclick="buy(1200,800)">BUY NOW</button></div>
+<div class="card"><b>2500 💎 - ₹1500</b><br><button class="btn" onclick="buy(2500,1500)">BUY NOW</button></div>
+<button class="btn" style="background:#444;color:#fff;margin-top:15px" onclick="closeStore()">CLOSE</button>
+</div>
+
+<script>
+const MY_UPI = "yaspalsinghrawat15@okhdfcbank";
+const MY_NAME = "Tharroxx";
+const AD_ID = "3134628758258139/5589109229"; // TERI ID LOCKED
+
+let canvas = document.getElementById("gameCanvas");
+let ctx = canvas.getContext("2d");
+function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight - 160; }
+resize();
+window.onresize = resize;
+
+let pName = localStorage.getItem("tharroxx_user");
+if(!pName){ pName = prompt("Naam daal Tharroxx me:"); if(!pName) pName="Player"; localStorage.setItem("tharroxx_user", pName); localStorage.setItem("diamond","20"); }
+document.getElementById("pName").innerText = pName;
+document.getElementById("dCount").innerText = localStorage.getItem("diamond")||"0";
+
+let player = {x:200,y:200,hp:100}; let zone={r:300}; let gameOn=false; let enemies=[];
+function startGame(){
+ player.hp=100; player.x=canvas.width/2; player.y=canvas.height/2; zone.r=350; enemies=[];
+ for(let i=0;i<6;i++) enemies.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height});
+ gameOn=true; loop();
+ // Ad refresh har 30 sec me - earning badhegi
+ setInterval(()=>{ console.log("Ad Refresh: "+AD_ID); document.getElementById("fbAd").innerHTML = `<p style="color:#ffcc00;font-size:11px">🔥 THARROXX AD ${new Date().toLocaleTimeString()} - Earning ON 🔥</p>`; }, 30000);
+}
+function loop(){
+ if(!gameOn) return;
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ ctx.strokeStyle="#ffcc00"; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(canvas.width/2,canvas.height/2,zone.r,0,Math.PI*2); ctx.stroke();
+ ctx.fillStyle="#0f0"; ctx.beginPath(); ctx.arc(player.x,player.y,14,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle="#f00"; enemies.forEach(e=>{ ctx.beginPath(); ctx.arc(e.x,e.y,10,0,Math.PI*2); ctx.fill(); });
+ if(zone.r>80) zone.r-=0.3;
+ requestAnimationFrame(loop);
+}
+function moveL(){ player.x-=20; } function moveR(){ player.x+=20; }
+function fire(){ enemies.pop(); if(enemies.length==0){ alert("BOOYAH! WIN - Tharroxx"); gameOn=false; } }
+function useMedkit(){ if(player.hp<100) player.hp=100; document.getElementById("hp").innerText=player.hp; }
+function openStore(){ document.getElementById("storeDiv").classList.add("active"); }
+function closeStore(){ document.getElementById("storeDiv").classList.remove("active"); }
+function buy(d,r){
+ let link = `upi://pay?pa=${MY_UPI}&pn=${encodeURIComponent(MY_NAME)}&am=${r}&cu=INR&tn=${d} Diamond ${pName}`;
+ window.location.href = link;
+ setTimeout(()=>{ if(confirm(`${r} Rs pay kiya? OK = ${d} diamond instant`)){ let cur=parseInt(localStorage.getItem("diamond")||"0"); localStorage.setItem("diamond",cur+d); document.getElementById("dCount").innerText=localStorage.getItem("diamond"); closeStore(); } }, 4000);
+}
+// Auto ad load
+window.addEventListener('load', ()=>{ console.log("Tharroxx Ad Loaded: "+AD_ID); });
+</script>
+</body>
+</html>
